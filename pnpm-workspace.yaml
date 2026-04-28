@@ -3,5 +3,7 @@ packages:
   - 'packages/*'
 allowBuilds:
   '@nestjs/core': true
+  '@prisma/engines': false
+  prisma: true
   sharp: true
   unrs-resolver: true
