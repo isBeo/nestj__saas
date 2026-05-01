@@ -1,3 +1,4 @@
+// apps/api/src/common/interceptors/response-transform.interceptor.ts
 import {
   Injectable,
   NestInterceptor,
@@ -7,16 +8,40 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  timestamp: string;
+}
+
 @Injectable()
-export class ResponseTransformInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+export class ResponseTransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        statusCode: 200,
-        message: 'Success',
-        data,
-        timestamp: new Date().toISOString(),
-      })),
+      map((data) => {
+        // If the service returns { data, message }, extract them
+        if (data && typeof data === 'object' && 'data' in data) {
+          return {
+            success: true,
+            message: data.message,
+            data: data.data,
+            timestamp: new Date().toISOString(),
+          };
+        }
+
+        return {
+          success: true,
+          data,
+          timestamp: new Date().toISOString(),
+        };
+      }),
     );
   }
 }

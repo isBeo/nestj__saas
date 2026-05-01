@@ -1,3 +1,4 @@
+// apps/api/src/common/filters/http-exception.filter.ts
 import {
   ExceptionFilter,
   Catch,
@@ -6,31 +7,57 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest();
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
+    const request = ctx.getRequest<Request>();
 
-    const errorResponse = {
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal server error';
+    let errors: unknown = undefined;
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const res = exception.getResponse() as any;
+      message = typeof res === 'string' ? res : res.message;
+      errors = typeof res === 'object' ? res.errors : undefined;
+    } else if (exception instanceof PrismaClientKnownRequestError) {
+      // Handle Prisma-specific errors gracefully
+      switch (exception.code) {
+        case 'P2002':
+          status = HttpStatus.CONFLICT;
+          message = `A record with this ${(exception.meta?.target as string[])?.join(', ')} already exists`;
+          break;
+        case 'P2025':
+          status = HttpStatus.NOT_FOUND;
+          message = 'Record not found';
+          break;
+        default:
+          message = 'Database error';
+      }
+    } else {
+      // Unknown errors — log them but don't expose details to client
+      this.logger.error('Unhandled exception', {
+        exception,
+        path: request.url,
+        method: request.method,
+      });
+    }
+
+    response.status(status).json({
+      success: false,
       statusCode: status,
-      message:
-        typeof exceptionResponse === 'object' && 'message' in exceptionResponse
-          ? (exceptionResponse as any).message
-          : exception.message,
-      timestamp: new Date().toISOString(),
+      message,
+      errors,
       path: request.url,
-    };
-
-    this.logger.error(`Error ${status}: ${errorResponse.message}`);
-
-    response.status(status).json(errorResponse);
+      timestamp: new Date().toISOString(),
+    });
   }
 }
