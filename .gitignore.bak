@@ -16,10 +16,12 @@ out/
 
 # Turbo + monorepo
 .turbo/
+pnpm-lock.yaml
 .pnpm-store/
 
 # Prisma
 prisma/dev.db
+prisma/migrations/
 
 # Coverage
 coverage/
