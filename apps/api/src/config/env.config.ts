@@ -33,6 +33,9 @@ const envSchema = z.object({
   // Identity Verification
   PREMBLY_API_KEY: z.string().optional(),
   PREMBLY_APP_ID: z.string().optional(),
+  DOJAH_APP_ID: z.string().optional(),
+  DOJAH_SECRET_KEY: z.string().optional(),
+  DOJAH_BASE_URL: z.string().url().optional(),
 
   // Email (SMTP)
   SMTP_HOST: z.string().optional(),
