@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: edusaas-api
+    env: node
+    plan: starter
+    autoDeploy: true
+
+    # Monorepo build (no Docker)
+    buildCommand: (corepack enable || true) && pnpm install --frozen-lockfile && pnpm --filter api build
+    preDeployCommand: pnpm --filter api migrate:prod
+    startCommand: pnpm --filter api start:prod
+
+    # Render injects PORT automatically; keep it dynamic.
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: edusaas-db
+    databaseName: edusaas
+    plan: starter
+    postgresVersion: "15"

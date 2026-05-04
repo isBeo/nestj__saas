@@ -44,7 +44,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 409, description: 'Email already exists' })
   async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+    return await this.authService.register(dto);
   }
 
   @Post('login')
@@ -61,7 +61,7 @@ export class AuthController {
   })
   async login(@Body() dto: LoginDto, @Ip() ip: string, @Req() req: Request) {
     const userAgent = req.headers['user-agent'] || 'unknown';
-    return this.authService.login(dto, ip, userAgent);
+    return await this.authService.login(dto, ip, userAgent);
   }
 
   @Post('logout')
@@ -69,7 +69,7 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Logout current session' })
   async logout(@CurrentUser('id') userId: string) {
-    return this.authService.logout(userId);
+    return await this.authService.logout(userId);
   }
 
   @Post('refresh')
@@ -77,7 +77,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token using refresh token' })
   async refresh(@Body('refreshToken') refreshToken: string) {
-    return this.authService.refreshToken(refreshToken);
+    return await this.authService.refreshToken(refreshToken);
   }
 
   @Post('verify-email')
@@ -85,7 +85,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify email with OTP' })
   async verifyEmail(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyEmail(dto.email, dto.otp);
+    return await this.authService.verifyEmail(dto.email, dto.otp);
   }
 
   @Post('forgot-password')
@@ -93,7 +93,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset OTP' })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto.email);
+    return await this.authService.forgotPassword(dto.email);
   }
 
   @Post('reset-password')
@@ -101,7 +101,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with OTP' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto.email, dto.otp, dto.newPassword);
+    return await this.authService.resetPassword(
+      dto.email,
+      dto.otp,
+      dto.newPassword,
+    );
   }
 
   @Get('me')

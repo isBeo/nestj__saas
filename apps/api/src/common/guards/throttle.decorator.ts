@@ -1,6 +1,7 @@
 // apps/api/src/common/guards/throttle.decorator.ts
 
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+// Throttle and SkipThrottle decorators from '@nestjs/throttler' are used per-route
+// See examples in the comments below
 
 // Use these decorators per route to override global limits:
 

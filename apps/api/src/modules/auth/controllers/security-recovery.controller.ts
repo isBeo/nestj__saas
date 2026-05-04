@@ -9,8 +9,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Request } from 'express';
-import { IsString, IsEmail, IsOptional, Matches } from 'class-validator';
+import type { Request } from 'express';
+import { IsString, IsEmail, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { SecurityRecoveryService } from '../services/security-recovery.service';
 import { Public } from '../../../common/decorators/public.decorator';
@@ -18,11 +18,11 @@ import { Public } from '../../../common/decorators/public.decorator';
 class SecurityRecoveryDto {
   @ApiProperty({ example: 'chidi@example.com' })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'new-device-uuid' })
   @IsString()
-  deviceId: string;
+  deviceId!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -41,11 +41,11 @@ class SecurityRecoveryDto {
 
   @ApiProperty({ example: 'Chidi' })
   @IsString()
-  firstName: string;
+  firstName!: string;
 
   @ApiProperty({ example: 'Okonkwo' })
   @IsString()
-  lastName: string;
+  lastName!: string;
 }
 
 @ApiTags('Auth')
