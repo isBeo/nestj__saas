@@ -42,7 +42,7 @@ services:
     image: dpage/pgadmin4
     container_name: edusaas_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@edusaas.ng
+      PGADMIN_DEFAULT_EMAIL: dammybeo@gmail.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
